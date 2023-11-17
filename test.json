@@ -1,16 +1,16 @@
 {
-  "score": 60,
+  "score": 90,
   "full_score": 100,
   "tests": {
     "q1": "PASS (10/10)",
     "q2": "PASS (10/10)",
-    "q3": "couldn't find txt -9014250178872933741 in output ",
+    "q3": "PASS (10/10)",
     "q4": "PASS (10/10)",
-    "q5": "couldn't find txt 356 in output error: \"error from server: code=1000 [unavailable exception] message=\\\"cannot achieve consistency level three\\\" info={\\'consistency\\': \\'three\\', \\'required_replicas\\': 3, \\'alive_replicas\\': 2}\"",
+    "q5": "PASS (10/10)",
     "q6": "PASS (10/10)",
     "q7": "PASS (10/10)",
-    "q8": "couldn't find txt dn in output datacenter: datacenter1\n=======================\nstatus=up/down\n|/ state=normal/leaving/joining/moving\n--  address     load        tokens  owns (effective)  host id                               rack \nun  172.26.0.3  317.43 kib  16      100.0%            81b4a457-e16a-4a02-814d-f512b8a65a9d  rack1\nun  172.26.0.2  195.74 kib  16      100.0%            3f9ad223-fdfc-4c9b-a8cd-0750da95d497  rack1\nun  172.26.0.4  182.07 kib  16      100.0%            35f18065-50a7-4204-ae3c-847acea9bf88  rack1",
-    "q9": "couldn't find txt need 3 replicas, but only have 2 in output error: \"error from server: code=1200 [coordinator node timed out waiting for replica nodes\\' responses] message=\\\"operation timed out - received only 2 responses.\\\" info={\\'consistency\\': \\'three\\', \\'required_responses\\': 3, \\'received_responses\\': 2}\"",
+    "q8": "PASS (10/10)",
+    "q9": "couldn't find txt need 3 replicas, but only have 2 in output error: \"error from server: code=1000 [unavailable exception] message=\\\"cannot achieve consistency level three\\\" info={\\'consistency\\': \\'three\\', \\'required_replicas\\': 3, \\'alive_replicas\\': 2}\"",
     "q10": "PASS (10/10)"
   }
 }
