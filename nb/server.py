@@ -43,9 +43,10 @@ class ModelServer(station_pb2_grpc.StationServicer):
 
     def StationMax(self, request, context):
         try:
-            rows = cass.execute(self.max_statement, request.station)
+            rows = cass.execute(self.max_statement, [request.station])
             sorted_rows = sorted(rows, key=lambda x: x.record.tmax, reverse=True)
             return station_pb2.StationMaxReply(tmax=sorted_rows[0].record.tmax, error="")
+
         except Exception as e:
             return station_pb2.StationMaxReply(error=str(e))
 
