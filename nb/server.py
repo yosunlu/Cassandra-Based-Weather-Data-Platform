@@ -20,18 +20,18 @@ cluster.register_user_type('weather', 'station_record', Record)
 
 class ModelServer(station_pb2_grpc.StationServicer):
     def __init__(self):
-            insert_statement = cass.prepare("""
+            self.insert_statement = cass.prepare("""
             INSERT INTO stations (id, date, record)
             VALUES(?, ?, ?)
             """)
-            insert_statement.consistency_level = ConsistencyLevel.ONE
+            self.insert_statement.consistency_level = ConsistencyLevel.ONE
 
-            max_statement = cass.prepare("""
+            self.max_statement = cass.prepare("""
             SELECT record.tmax
             FROM stations
             WHERE id = ?
             """)
-            max_statement.consistency_level = ConsistencyLevel.TWO
+            self.max_statement.consistency_level = ConsistencyLevel.THREE
 
     def RecordTemps(self, request, context):
         try:
