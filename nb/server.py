@@ -27,7 +27,7 @@ class ModelServer(station_pb2_grpc.StationServicer):
             self.insert_statement.consistency_level = ConsistencyLevel.ONE
 
             self.max_statement = cass.prepare("""
-            SELECT record.tmax
+            SELECT id, record
             FROM stations
             WHERE id = ?
             """)
@@ -43,9 +43,9 @@ class ModelServer(station_pb2_grpc.StationServicer):
 
     def StationMax(self, request, context):
         try:
-            result = cass.execute(max_statement, request.station)
-            row = result.one()
-            return station_pb2.StationMaxReply(tmax=row.tmax, error="")
+            rows = cass.execute(self.max_statement, request.station)
+            sorted_rows = sorted(rows, key=lambda x: x.record.tmax, reverse=True)
+            return station_pb2.StationMaxReply(tmax=sorted_rows[0].record.tmax, error="")
         except Exception as e:
             return station_pb2.StationMaxReply(error=str(e))
 
