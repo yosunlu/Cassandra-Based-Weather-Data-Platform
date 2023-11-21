@@ -1,5 +1,7 @@
 from cassandra.cluster import Cluster
+from cassandra.cluster import NoHostAvailable
 from cassandra import ConsistencyLevel
+from cassandra import Unavailable
 from concurrent import futures
 import station_pb2_grpc
 import station_pb2
@@ -60,9 +62,22 @@ class ModelServer(station_pb2_grpc.StationServicer):
             cass.execute(self.insert_statement, (request.station, request.date, Record(request.tmin, request.tmax)))
             return station_pb2.RecordTempsReply(error="") 
 
+        except Unavailable as e:
+            error_msg = f"need {e.required_replicas} replicas, but only have {e.alive_replicas}"
+            return station_pb2.RecordTempsReply(error = error_msg)
+        except NoHostAvailable as e:
+            for error in e.errors.values():
+                if isinstance(error, Unavailable):
+                    error_msg = f"need {error.required_replicas} replicas, but only have {error.alive_replicas}"
+                    break
+            else:
+                # Handle other errors within NoHostAvailable
+                error_msg = "Got a NoHostAvailable exception without cassandra.Unavailable inside."
+            return station_pb2.RecordTempsReply(error = error_msg)
         except Exception as e:
-            #TODO: modfiy the error when there's not enough node
-            return station_pb2.RecordTempsReply(error=str(e))
+            # Handle other exceptions
+            error_msg = "Got an exception which is neither cassandra.Unavailable nor cassandra.cluster.NoHostAvailable."
+            return station_pb2.RecordTempsReply(error = error_msg)
 
     def StationMax(self, request, context):
         """
@@ -73,11 +88,22 @@ class ModelServer(station_pb2_grpc.StationServicer):
             sorted_rows = sorted(rows, key=lambda x: x.record.tmax, reverse=True) # sort the list based on tmax
             return station_pb2.StationMaxReply(tmax=sorted_rows[0].record.tmax, error="") # sorted_rows[0] will be the first row of the given station id
 
+        except Unavailable as e:
+            error_msg = f"need {e.required_replicas} replicas, but only have {e.alive_replicas}"
+            return station_pb2.StationMaxReply(error = error_msg)
+        except NoHostAvailable as e:
+            for error in e.errors.values():
+                if isinstance(error, Unavailable):
+                    error_msg = f"need {error.required_replicas} replicas, but only have {error.alive_replicas}"
+                    break
+            else:
+                # Handle other errors within NoHostAvailable
+                error_msg = "Got a NoHostAvailable exception without cassandra.Unavailable inside."
+            return station_pb2.StationMaxReply(error = error_msg)
         except Exception as e:
-            #TODO: modfiy the error when there's not enough node??
-            #TODO: We want to avoid a situation where a StationMax returns a smaller temperature than one previously added with RecordTemps
-            # it would be better to return an error message if necessary
-            return station_pb2.StationMaxReply(error=str(e))
+            # Handle other exceptions
+            error_msg = "Got an exception which is neither cassandra.Unavailable nor cassandra.cluster.NoHostAvailable."
+            return station_pb2.StationMaxReply(error = error_msg)
 
 if __name__ == "__main__":
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=4))

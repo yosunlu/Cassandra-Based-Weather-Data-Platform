@@ -1,5 +1,5 @@
 {
-  "score": 90,
+  "score": 100,
   "full_score": 100,
   "tests": {
     "q1": "PASS (10/10)",
@@ -10,7 +10,7 @@
     "q6": "PASS (10/10)",
     "q7": "PASS (10/10)",
     "q8": "PASS (10/10)",
-    "q9": "couldn't find txt need 3 replicas, but only have 2 in output error: \"error from server: code=1000 [unavailable exception] message=\\\"cannot achieve consistency level three\\\" info={\\'consistency\\': \\'three\\', \\'required_replicas\\': 3, \\'alive_replicas\\': 2}\"",
+    "q9": "PASS (10/10)",
     "q10": "PASS (10/10)"
   }
 }
