@@ -21,6 +21,7 @@ chmod u+x setup.sh
     - starts three containers 
     - ports: "127.0.0.1:5000:5000" in the first container indicates that, port 5000 in the container will only listen to port 5000 on your local machine 
     - volumes: "./nb:/nb" maps local nb directory to the one in the container
+    - note that the first container will run the cassandra script, essentially connecting the three containers; the first container also runs jupyterlab on port 5000, and exposes it to the host machine
 
 Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. Note that occasionally you'll need to clear the cache for the page the appear.
 
