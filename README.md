@@ -1,7 +1,10 @@
 
 # Project overview
 
-NOAA (National Oceanic and Atmospheric Administration) collects weather data from all over the world. The target of this project is to (1) store this data in Cassandra, (2) write a server for data collection, and (3) analyze the collected data via Spark.
+NOAA (National Oceanic and Atmospheric Administration) collects weather data from all over the world. The target of this project is to: 
+(1) store this data in Cassandra  
+(2) write a server for data collection, and 
+(3) analyze the collected data via Spark.
 
 # Cluster Setup
 
@@ -22,11 +25,18 @@ chmod u+x setup.sh
 Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. Note that occasionally you'll need to clear the cache for the page the appear.
 
 
+# Files
+Source code are stored in ./nb
+- p6.ipynb: the main code accomplishes the 10 tasks below
+- server.pu: gRPC-based server 
+- ghcnd-stations.txt: includes the name and ID of the weather stations (gitignored)
+- records.parquet: includes the weather data (gitignored)
+
 # Tasks
-There are 10 tasks I wanted to achieve, devided in to 4 parts. Corresponding code can be found in p6.ipynb
+There are 10 tasks I wanted to achieve, devided into 4 parts. Corresponding code can be found in p6.ipynb
 
 ## Part 1
-Moves the input file to a cassandra table via spark
+Moves the station data from ghcnd-stations.txt to a cassandra table via Spark
 - Task 1: determine the schema of the created cassandra table
     - Step 1: Connect to the Cassandra cluster
     - Step 2: Create a weather keyspace with 3x replication
@@ -36,7 +46,18 @@ Moves the input file to a cassandra table via spark
     - Step 2: Read the input file, filter results to the state of Wisconsin, and collect the rows
     - Step 3: Iterate the spark data frame, and store ID and Name to cassandra. This step is essentially moving data from spark to cassandra
 - Task 3: Check the token for the USC00470273 station
+    - Each Cassandra row will be stored in 3 nodes (workers)
 - Task 4: Check first vnode token in the ring following the token for USC00470273
+
+## Part 2
+Writes a gRPC-based server that that receives temperature data and records it to weather.stations. You could imagine various sensor devices acting as clients that make gRPC calls to server.py to record data, but for simplicity I'll make the client calls from p6.ipynb.  
+In server.py, I implemented the interface from station_pb2_grpc.StationServicer. RecordTemps will insert new temperature highs/lows to weather.stations. StationMax will return the maximum tmax ever seen for the given station.  
+- Task 5: Create a gRPC-based server. Use this notebook as client that calls the server, and fill in the cassandra table; validate the max temperature ever seen for station USW00014837
+    - Both client and server are connected to the cassandra clusters. The weather data are stored at client locally. For each row of data, client will call the gRPC server. The server will store the corresponding weather data to the cassandra station table 
+    - The RF(replication factor) is set to 3, W is set to 1, R is set to 3
+        - Each Cassandra row will be stored in 3 nodes (workers); W is low because I prioritize high write availability. R is set to 3 so R + W > RF, which allows written nodes and nodes to read from to overlap
+
+
 
 ## p6.ipynb:
 - Table weather.stations is created at the beginning of the notebook
