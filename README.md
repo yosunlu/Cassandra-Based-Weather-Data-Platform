@@ -21,6 +21,23 @@ chmod u+x setup.sh
 
 Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. Note that occasionally you'll need to clear the cache for the page the appear.
 
+
+# Tasks
+There are 10 tasks I wanted to achieve, devided in to 4 parts. Corresponding code can be found in p6.ipynb
+
+## Part 1
+Moves the input file to a cassandra table via spark
+- Task 1: determine the schema of the created cassandra table
+    - Step 1: Connect to the Cassandra cluster
+    - Step 2: Create a weather keyspace with 3x replication
+    - Step 3: Create the station table
+- Task 2: Validate the correctness of the station table
+    - Step 1: Create a Spark session. Note that all workers (driver and executors) are running in a single machine (fine for testing/development, but misses the benefits of distributed computing)
+    - Step 2: Read the input file, filter results to the state of Wisconsin, and collect the rows
+    - Step 3: Iterate the spark data frame, and store ID and Name to cassandra. This step is essentially moving data from spark to cassandra
+- Task 3: Check the token for the USC00470273 station
+- Task 4: Check first vnode token in the ring following the token for USC00470273
+
 ## p6.ipynb:
 - Table weather.stations is created at the beginning of the notebook
 - Use spark to read data from "ghcnd-stations.txt", and moves data (only id and name) to the cassandra table (q1~q4)
