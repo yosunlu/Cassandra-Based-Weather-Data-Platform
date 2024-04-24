@@ -1,9 +1,9 @@
 
 # Project overview
 
-NOAA (National Oceanic and Atmospheric Administration) collects weather data from all over the world. The target of this project is to: 
+NOAA (National Oceanic and Atmospheric Administration) collects weather data from all over the world. The target of this project is to:  
 (1) store this data in Cassandra  
-(2) write a server for data collection, and 
+(2) write a server for data collection, and  
 (3) analyze the collected data via Spark.
 
 # Cluster Setup
