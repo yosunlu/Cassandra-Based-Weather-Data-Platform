@@ -19,7 +19,7 @@ NOAA (National Oceanic and Atmospheric Administration) collects weather data fro
     - volumes: "./nb:/nb" maps local nb directory to the one in the container
     - note that the first container (p6-db-1) will run the cassandra script, essentially connecting the three containers; the first container also runs jupyterlab on port 5000, and exposes it to the host machine
 
-Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. Note that occasionally you'll need to clear the cache for the page the appear.
+Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. Note that occasionally you'll need to clear the cache for the page to appear.
 
 
 # Files
