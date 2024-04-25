@@ -61,14 +61,14 @@ Spark analysis
 - Task 7: Calculate the average difference between tmax and tmin, for each of the four stations that have temperature records
 
 ## Part 4
-Tested what will I happen if I bring down a replica (container)
+Tests what will I happen if I bring down a replica (container).
 - Task 8/9: if I make a StationMax RPC call, what does the error field contain in StationMaxReply reply?
     - Ran a docker kill to kill container 2; since the RF is 3, an error message should return:  
     `error: "need 3 replicas, but only have 2"`
 - Task 10: Make a RecordTempsRequest RPC call, what does error contain in the RecordTempsReply reply?
     - Inserts should happen with ConsistencyLevel.ONE, so this ought to work, meaning the empty string is the expected result for error
 
-## why use a cassandra table?
+## Why use a cassandra table?
 weather.stations table looks like this:
 
 | id          | date     | station_record  |
