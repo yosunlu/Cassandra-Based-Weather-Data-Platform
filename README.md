@@ -8,20 +8,16 @@ NOAA (National Oceanic and Atmospheric Administration) collects weather data fro
 
 # Cluster Setup
 
-'setup.sh' is provided to download and setup all the necessary files for this project. Note that you might need to give setup.sh executable permission before running it. You can do this running:  
-`wget https://raw.githubusercontent.com/cs544-wisc/f23/main/p6/setup.sh -O setup.sh
-chmod u+x setup.sh
-./setup.sh`
-
+- Prerequisite: Docker downloaded
+- Clone this repo
 - run `docker build . -t p6-base`
   - Dockerfile: built on ubuntu:22.04 and wget Cassandra and Spark
 - run `docker compose up -d`
   - docker-compose.yml:  
-    p6-db-1:   
     - starts three containers 
     - ports: "127.0.0.1:5000:5000" in the first container indicates that, port 5000 in the container will only listen to port 5000 on your local machine 
     - volumes: "./nb:/nb" maps local nb directory to the one in the container
-    - note that the first container will run the cassandra script, essentially connecting the three containers; the first container also runs jupyterlab on port 5000, and exposes it to the host machine
+    - note that the first container (p6-db-1) will run the cassandra script, essentially connecting the three containers; the first container also runs jupyterlab on port 5000, and exposes it to the host machine
 
 Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. Note that occasionally you'll need to clear the cache for the page the appear.
 
@@ -51,25 +47,26 @@ Moves the station data from ghcnd-stations.txt to a cassandra table via Spark
 - Task 4: Check first vnode token in the ring following the token for USC00470273
 
 ## Part 2
-Writes a gRPC-based server that that receives temperature data and records it to weather.stations. You could imagine various sensor devices acting as clients that make gRPC calls to server.py to record data, but for simplicity I'll make the client calls from p6.ipynb.  
+Wrote a gRPC-based server that that receives temperature data and records it to weather.stations. You could imagine various sensor devices acting as clients that make gRPC calls to server.py to record data, but for simplicity I'll make the client calls from p6.ipynb.  
 In server.py, I implemented the interface from station_pb2_grpc.StationServicer. RecordTemps will insert new temperature highs/lows to weather.stations. StationMax will return the maximum tmax ever seen for the given station.  
 - Task 5: Create a gRPC-based server. Use this notebook as client that calls the server, and fill in the cassandra table; validate the max temperature ever seen for station USW00014837
     - Both client and server are connected to the cassandra clusters. The weather data are stored at client locally. For each row of data, client will call the gRPC server. The server will store the corresponding weather data to the cassandra station table 
     - The RF(replication factor) is set to 3, W is set to 1, R is set to 3
         - Each Cassandra row will be stored in 3 nodes (workers); W is low because I prioritize high write availability. R is set to 3 so R + W > RF, which allows written nodes and nodes to read from to overlap
 
+## Part 3
+Spark analysis
+- Task 6: Create a temporary view in Spark named stations that corresponds to the stations table in Cassandra
+    - Each Spark executor may communicate with multiple Cassandra partitions
+- Task 7: Calculate the average difference between tmax and tmin, for each of the four stations that have temperature records
 
-
-## p6.ipynb:
-- Table weather.stations is created at the beginning of the notebook
-- Use spark to read data from "ghcnd-stations.txt", and moves data (only id and name) to the cassandra table (q1~q4)
-- Another file (record.parquet) is read using spark. Use gRPC (where connection to the cassandra table is also made) to insert the dates and records (q5)
-- q5 loops the new parquet file (which is converted to list), and pass id, dates, and records to requests
-
-## server.py:
-- Implements the interface from station_pb2_grpc.StationServicer
-- RecordTemps will insert new temperature highs/lows to weather.stations
-- StationMax will return the maximum tmax ever seen for the given station
+## Part 4
+Tested what will I happen if I bring down a replica (container)
+- Task 8/9: if I make a StationMax RPC call, what does the error field contain in StationMaxReply reply?
+    - Ran a docker kill to kill container 2; since the RF is 3, an error message should return:  
+    `error: "need 3 replicas, but only have 2"`
+- Task 10: Make a RecordTempsRequest RPC call, what does error contain in the RecordTempsReply reply?
+    - Inserts should happen with ConsistencyLevel.ONE, so this ought to work, meaning the empty string is the expected result for error
 
 ## why use a cassandra table?
 weather.stations table looks like this:
@@ -85,4 +82,19 @@ weather.stations table looks like this:
 - The table created in notebook does not have date and station_record
 - Use RecordTemps (given id, date, station_record) to fill in the table
 - Use StationMax to iterate/sort the station_record to find the largest tmax ever for this station
+
+
+### Misc
+p6.ipynb:
+- Table weather.stations is created at the beginning of the notebook
+- Use spark to read data from "ghcnd-stations.txt", and moves data (only id and name) to the cassandra table (Task 1 ~ Task 4)
+- Another file (record.parquet) is read using spark. Use gRPC (where connection to the cassandra table is also made) to insert the dates and records (Task 5)
+- Task 5 loops the new parquet file (which is converted to list), and pass id, dates, and records to requests
+
+server.py:
+- Implements the interface from station_pb2_grpc.StationServicer
+- RecordTemps will insert new temperature highs/lows to weather.stations
+- StationMax will return the maximum tmax ever seen for the given station
+
+
 
