@@ -30,7 +30,7 @@ Source code are stored in ./nb
 - records.parquet: includes the weather data (gitignored)
 
 # Tasks
-There are 10 tasks I wanted to achieve, devided into 4 parts. Corresponding code can be found in p6.ipynb
+There are 10 tasks I wanted to accomplish, devided into 4 parts. Corresponding code can be found in p6.ipynb
 
 ## Part 1
 Moves the station data from ghcnd-stations.txt to a cassandra table via Spark
