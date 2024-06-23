@@ -25,7 +25,7 @@ Now enter "127.0.0.1:5000" at your browser. This should be the jupyterlab page. 
 # Files
 Source code are stored in ./nb
 - p6.ipynb: the main code accomplishes the 10 tasks below
-- server.pu: gRPC-based server 
+- server.py: gRPC-based server 
 - ghcnd-stations.txt: includes the name and ID of the weather stations (gitignored)
 - records.parquet: includes the weather data (gitignored)
 
